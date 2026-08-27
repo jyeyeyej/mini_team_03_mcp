@@ -160,7 +160,7 @@ Invoke-RestMethod http://127.0.0.1:8000/api/mcp/status
 ```
 
 정상이라면 `status=connected`, `tool_count=3`이 표시됩니다. 여기서 503이 발생하면
-Frontend를 실행하기 전에 첫 번째 터미널의 MCP Server와 `TRAVEL_MCP_URL`을 먼저
+Frontend를 실행하기 전에 첫 번째 터미널의 MCP Server와 `TOUR_MCP_URL`을 먼저
 확인합니다.
 
 ### 6단계 · GPT, Tool과 Resource API 확인
@@ -260,9 +260,9 @@ MCP Server만 먼저 종료한 뒤 `/api/mcp/status`를 다시 호출하면 Back
 
 ```env
 BACKEND_API_URL=http://127.0.0.1:8000
-TRAVEL_MCP_URL=http://127.0.0.1:8010/mcp
-MCP_HOST=127.0.0.1
-MCP_PORT=8010
+TOUR_MCP_URL=http://127.0.0.1:8033/mcp
+TOUR_MCP_HOST=0.0.0.0
+TOUR_MCP_PORT=8033
 OPENAI_API_KEY=발급받은_API_KEY
 OPENAI_MODEL=gpt-4.1-mini
 ```

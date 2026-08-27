@@ -16,7 +16,7 @@ load_dotenv(PROJECT_ROOT / ".env")
 MCP_SERVERS: dict[str, dict[str, Any]] = {
     "travel": {
         "transport": "streamable-http",
-        "url": os.getenv("TRAVEL_MCP_URL", "http://192.168.1.26:8010/mcp"),
+        "url": os.getenv("TOUR_MCP_URL", "http://127.0.0.1:8033/mcp"),
     },
     "policy": {
         "transport": "stdio",
