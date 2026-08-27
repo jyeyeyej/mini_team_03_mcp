@@ -40,6 +40,15 @@ Server는 `search_hotels`, `get_cancellation_policy`를 제공합니다. Client�
 Server의 Tool 이름 앞에 `weather__`, `hotel__`을 붙여 GPT에 전달하고, 라우팅
 테이블을 이용해 GPT가 선택한 Tool을 원래 Server에서 실행합니다.
 
+Weather Server는 코드에 고정된 값을 반환하지 않고 `.env`의 `DATABASE_URL`로
+Docker PostgreSQL에 접속합니다. MCP Tool은 `service → repository → connection`
+계층으로 DB를 조회합니다. 실행 전에 프로젝트 루트에서 DB와 데이터를 준비합니다.
+
+```powershell
+docker compose up -d
+python .\scripts\seed_open_meteo.py
+```
+
 ```text
 Weather MCP Server ─ get_current_weather
                    └ get_weather_forecast
