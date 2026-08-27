@@ -1,22 +1,58 @@
-"""날씨 테이블을 조회하는 저장소 계층입니다.
+"""PostgreSQL에서 날씨 데이터를 조회합니다."""
 
-테이블 명세를 받으면 이 파일에만 테이블명, 컬럼명, SQL을 작성합니다.
-"""
-
-from typing import Any
-
-from core.weather.exceptions import WeatherSchemaNotReadyError
+from client.connection import connect_database
 
 
-class WeatherRepository:
-    def get_latest_current_weather(self, city: str) -> dict[str, Any]:
-        """도시의 최신 현재 날씨 한 건을 반환합니다."""
-        raise WeatherSchemaNotReadyError(
-            "날씨 테이블 명세를 받은 뒤 WeatherRepository에 현재 날씨 조회 SQL을 연결해야 합니다."
-        )
+def find_latest_current_weather(city: str):
+    """도시의 가장 최근 현재 날씨 한 건을 반환합니다."""
+    with connect_database() as connection:
+        return connection.execute(
+            """
+            SELECT
+                locations.city_name,
+                current_weather.observed_at,
+                current_weather.temperature_c,
+                current_weather.apparent_temperature_c,
+                current_weather.humidity_pct,
+                current_weather.precipitation_mm,
+                current_weather.weather_code,
+                current_weather.source,
+                current_weather.fetched_at
+            FROM weather_current AS current_weather
+            JOIN weather_locations AS locations
+                ON locations.id = current_weather.location_id
+            WHERE locations.city_name = %s
+            ORDER BY current_weather.observed_at DESC
+            LIMIT 1
+            """,
+            (city,),
+        ).fetchone()
 
-    def get_weather_forecast(self, city: str, days: int) -> list[dict[str, Any]]:
-        """도시의 향후 일별 예보를 최대 days건 반환합니다."""
-        raise WeatherSchemaNotReadyError(
-            "날씨 테이블 명세를 받은 뒤 WeatherRepository에 예보 조회 SQL을 연결해야 합니다."
-        )
+
+def find_future_forecasts(city: str, days: int):
+    """도시 현지 날짜를 기준으로 향후 예보를 요청 일수만큼 반환합니다."""
+    with connect_database() as connection:
+        return connection.execute(
+            """
+            SELECT
+                forecast.forecast_date,
+                forecast.min_temperature_c,
+                forecast.max_temperature_c,
+                forecast.precipitation_probability_pct,
+                forecast.weather_code,
+                forecast.source,
+                forecast.fetched_at,
+                forecast.forecast_date
+                    - (CURRENT_TIMESTAMP AT TIME ZONE locations.timezone)::date
+                    AS days_from_today
+            FROM weather_forecast AS forecast
+            JOIN weather_locations AS locations
+                ON locations.id = forecast.location_id
+            WHERE locations.city_name = %s
+              AND forecast.forecast_date
+                    > (CURRENT_TIMESTAMP AT TIME ZONE locations.timezone)::date
+            ORDER BY forecast.forecast_date
+            LIMIT %s
+            """,
+            (city, days),
+        ).fetchall()

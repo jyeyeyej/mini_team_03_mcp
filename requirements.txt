@@ -2,8 +2,8 @@ fastapi
 httpx
 mcp>=1.27,<2
 openai
+psycopg[binary]>=3.2,<4
 pydantic
 python-dotenv
-psycopg[binary]>=3.2,<4
 streamlit
 uvicorn

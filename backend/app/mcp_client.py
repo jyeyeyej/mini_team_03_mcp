@@ -14,21 +14,16 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(PROJECT_ROOT / ".env")
 
 MCP_SERVERS: dict[str, dict[str, Any]] = {
-    "travel": {
+    "weather": {
         "transport": "streamable-http",
-        "url": os.getenv("TRAVEL_MCP_URL", "http://192.168.1.26:8010/mcp"),
+        "url": os.getenv("WEATHER_MCP_URL", "http://192.168.1.25:8010/mcp"),
     },
-    "policy": {
+    "tour": {
         "transport": "stdio",
         "command": sys.executable,
-        "args": [str(PROJECT_ROOT / "mcp_server" / "policy_stdio_server.py")],
-    },
-    "health": {
-        "transport": "streamable-http",
-        "url": os.getenv(
-            "HEALTH_MCP_URL",
-            "http://192.168.1.12:8011/mcp",
-        ),
+        "args": [
+            str(PROJECT_ROOT / "mcp_server" / "03_tour_mcp_server.py")
+        ],
     },
 }
 
