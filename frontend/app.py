@@ -1,9 +1,13 @@
 import os
+from pathlib import Path
 
 import httpx
 import streamlit as st
+from dotenv import load_dotenv
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(PROJECT_ROOT / ".env")
 BASE_URL = os.getenv("BACKEND_API_URL", "http://127.0.0.1:8000").rstrip("/")
 
 
@@ -22,7 +26,7 @@ def post(path: str, payload: dict) -> dict:
 st.set_page_config(page_title="Mini Agent 03 MCP", page_icon="🔌", layout="wide")
 st.title("Mini Agent 03 · MCP")
 st.caption(
-    "FastAPI가 Streamable HTTP와 stdio MCP Server의 Tool을 발견하고 "
+    "FastAPI가 Tour Streamable HTTP MCP Server의 Tool을 발견하고 "
     "순차 Agent Loop로 호출합니다."
 )
 
@@ -36,7 +40,7 @@ try:
         )
 except httpx.HTTPError:
     st.warning(
-        "MCP Server에 연결할 수 없습니다. Travel 서버가 8010 포트에서 "
+        "MCP Server에 연결할 수 없습니다. Tour 서버가 8033 포트에서 "
         "실행 중인지 확인하세요."
     )
 
@@ -48,7 +52,7 @@ if st.button("MCP Tool 발견"):
 
 question = st.text_input(
     "질문",
-    "부산 날씨와 15만원 이하 호텔을 찾고, 검색된 호텔의 정책도 알려 주세요.",
+    "부산에서 15만 원 이하 호텔을 찾고 서울 관광지도 알려 주세요.",
 )
 if st.button("MCP Agent 실행", type="primary"):
     try:
@@ -75,10 +79,3 @@ if st.button("MCP Agent 실행", type="primary"):
             st.json(result)
     except httpx.HTTPError as error:
         st.error(f"Backend 호출 실패: {error}")
-
-with st.expander("MCP Resource 확인"):
-    if st.button("수하물 정책 읽기"):
-        try:
-            st.json(get("/api/mcp/baggage-policy"))
-        except httpx.HTTPError as error:
-            st.error(f"Backend 호출 실패: {error}")
