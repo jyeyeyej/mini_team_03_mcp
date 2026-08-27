@@ -4,5 +4,6 @@ mcp>=1.27,<2
 openai
 pydantic
 python-dotenv
+psycopg[binary]>=3.2,<4
 streamlit
 uvicorn
