@@ -2,8 +2,10 @@ import os
 
 import httpx
 import streamlit as st
+from dotenv import load_dotenv
 
 
+load_dotenv()
 BASE_URL = os.getenv("BACKEND_API_URL", "http://127.0.0.1:8000").rstrip("/")
 
 
@@ -45,7 +47,6 @@ if st.button("MCP Tool 발견"):
         st.json(get("/api/mcp/tools"))
     except httpx.HTTPError as error:
         st.error(f"Backend 호출 실패: {error}")
-
 question = st.text_input(
     "질문",
     "부산 날씨와 15만원 이하 호텔을 찾고, 검색된 호텔의 정책도 알려 주세요.",
@@ -75,10 +76,3 @@ if st.button("MCP Agent 실행", type="primary"):
             st.json(result)
     except httpx.HTTPError as error:
         st.error(f"Backend 호출 실패: {error}")
-
-with st.expander("MCP Resource 확인"):
-    if st.button("수하물 정책 읽기"):
-        try:
-            st.json(get("/api/mcp/baggage-policy"))
-        except httpx.HTTPError as error:
-            st.error(f"Backend 호출 실패: {error}")

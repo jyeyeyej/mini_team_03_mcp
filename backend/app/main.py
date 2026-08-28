@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 
 from .agent import run_agent
-from .mcp_client import MCP_SERVERS, discover_resources, discover_tools, read_resource
+from .mcp_client import MCP_SERVERS, discover_resources, discover_tools
 from .schemas import McpRunRequest, McpRunResult
 
 
@@ -57,15 +57,6 @@ async def list_mcp_resources():
         return {"resources": await discover_resources()}
     except Exception as error:
         raise HTTPException(status_code=503, detail=f"MCP Resource 발견 실패: {error}") from error
-
-
-@app.get("/api/mcp/baggage-policy")
-async def baggage_policy():
-    try:
-        content = await read_resource("travel", "travel://policy/baggage")
-        return {"uri": "travel://policy/baggage", "content": content}
-    except Exception as error:
-        raise HTTPException(status_code=503, detail=f"MCP Resource 읽기 실패: {error}") from error
 
 
 @app.post("/api/mcp/run", response_model=McpRunResult)

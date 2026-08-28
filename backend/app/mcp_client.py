@@ -16,7 +16,14 @@ load_dotenv(PROJECT_ROOT / ".env")
 MCP_SERVERS: dict[str, dict[str, Any]] = {
     "weather": {
         "transport": "streamable-http",
-        "url": os.getenv("WEATHER_MCP_URL", "http://192.168.1.25:8010/mcp"),
+        "url": os.getenv("WEATHER_MCP_URL", "http://127.0.0.1:8010/mcp"),
+    },
+    "hotel": {
+        "transport": "stdio",
+        "command": sys.executable,
+        "args": [
+            str(PROJECT_ROOT / "mcp_server" / "03_hotel_mcp_server.py")
+        ],
     },
     "tour": {
         "transport": "stdio",
