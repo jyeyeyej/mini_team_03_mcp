@@ -14,20 +14,28 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(PROJECT_ROOT / ".env")
 
 MCP_SERVERS: dict[str, dict[str, Any]] = {
-    "travel": {
+    "tour": {
         "transport": "streamable-http",
-        "url": os.getenv("TOUR_MCP_URL", "http://127.0.0.1:8033/mcp"),
+        "url": os.getenv(
+            "TOUR_MCP_URL",
+            "http://192.168.1.12:8033/mcp",
+        ),
     },
-    "policy": {
-        "transport": "stdio",
-        "command": sys.executable,
-        "args": [str(PROJECT_ROOT / "mcp_server" / "policy_stdio_server.py")],
-    },
-    "health": {
+    "weather": {
         "transport": "streamable-http",
-        "url": os.getenv("HEALTH_MCP_URL","http://127.0.0.1:8011/mcp",),
-    },    
+        "url": os.getenv(
+            "WEATHER_MCP_URL",
+            "http://127.0.0.1:8010/mcp",
+        ),
+    },
 }
+
+
+def exception_detail(error: BaseException) -> str:
+    """ExceptionGroup 안쪽까지 펼쳐 실제 연결 실패 원인을 표시합니다."""
+    if isinstance(error, BaseExceptionGroup):
+        return "; ".join(exception_detail(item) for item in error.exceptions)
+    return f"{type(error).__name__}: {error}"
 
 
 async def open_session(
@@ -66,7 +74,14 @@ async def mcp_sessions():
     async with AsyncExitStack() as stack:
         sessions: dict[str, ClientSession] = {}
         for server_name, config in MCP_SERVERS.items():
-            sessions[server_name] = await open_session(stack, config)
+            try:
+                sessions[server_name] = await open_session(stack, config)
+            except Exception as error:
+                endpoint = config.get("url", "stdio child process")
+                raise ConnectionError(
+                    f"{server_name} MCP 연결 실패 ({endpoint}): "
+                    f"{exception_detail(error)}"
+                ) from error
         yield sessions
 
 

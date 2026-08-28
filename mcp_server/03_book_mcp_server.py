@@ -1,9 +1,12 @@
 """특정 지역 호텔 예약 처리하는 stdio MCP Server입니다."""
 
+import os
 from typing import Literal
 
 from mcp.server.fastmcp import FastMCP
 
+MCP_HOST = os.getenv("TOUR_HOST", "192.168.1.26")
+MCP_PORT = int(os.getenv("TOUR_PORT", "8033"))
 
 mcp = FastMCP(
     "book",

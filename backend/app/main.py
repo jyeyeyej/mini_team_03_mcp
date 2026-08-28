@@ -62,8 +62,8 @@ async def list_mcp_resources():
 @app.get("/api/mcp/baggage-policy")
 async def baggage_policy():
     try:
-        content = await read_resource("travel", "travel://policy/baggage")
-        return {"uri": "travel://policy/baggage", "content": content}
+        content = await read_resource("tour", "tour://policy/baggage")
+        return {"uri": "tour://policy/baggage", "content": content}
     except Exception as error:
         raise HTTPException(status_code=503, detail=f"MCP Resource 읽기 실패: {error}") from error
 

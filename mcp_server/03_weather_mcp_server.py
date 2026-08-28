@@ -1,50 +1,47 @@
-"""특정 지역의 관광지 정보를 조회하는 stdio MCP Server입니다."""
+"""Open-Meteo와 기상청 날씨를 비교하는 Streamable HTTP MCP Server입니다."""
 
+import os
+from pathlib import Path
 from typing import Literal
 
+from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
-
-mcp = FastMCP(
-    "tour",
-    instructions="도시에 관광지를 검색하고 관광지별 정보를 제공합니다.",
+from core.weather.service import (
+    compare_current_weather as compare_current_weather_service,
+    compare_weekly_forecast as compare_weekly_forecast_service,
 )
 
-TOURISTS = [
-    {
-        "tourist_id": "tourist-busan-001",
-        "name": "바다 관광지",
-        "city": "부산",
-    },
-    {
-        "tourist_id": "tourist-busan-002",
-        "name": "항구 관광지",
-        "city": "부산",
-    },
-    {
-        "tourist_id": "tourist-seoul-001",
-        "name": "도시 관광지",
-        "city": "서울",
-    },
-    {
-        "tourist_id": "tourist-seoul-002",
-        "name": "한강 관광지",
-        "city": "서울",
-    },
-]
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(PROJECT_ROOT / "mcp_server" / ".env")
+load_dotenv(PROJECT_ROOT / ".env")
+
+mcp = FastMCP(
+    "weather-comparison",
+    instructions=(
+        "서울과 부산의 현재 날씨 및 향후 7일 예보를 "
+        "Open-Meteo와 기상청 데이터로 비교합니다."
+    ),
+    host=os.getenv("MCP_HOST", "127.0.0.1"),
+    port=int(os.getenv("MCP_PORT", "8010")),
+)
 
 
 @mcp.tool()
-def search_tourists(
+def compare_current_weather(city: Literal["부산", "서울"]) -> dict:
+    """도시의 현재 날씨를 Open-Meteo와 기상청 초단기실황으로 비교합니다."""
+    return compare_current_weather_service(city)
+
+
+@mcp.tool()
+def compare_weekly_forecast(
     city: Literal["부산", "서울"],
+    days: int = 7,
 ) -> dict:
-    """도시에 관광지를 검색합니다."""
-    matches = [
-        tourist for tourist in TOURISTS
-        if tourist["city"] == city          
-    ]
-    return {"items": matches, "source": "lab-tourist-catalog"}
+    """도시의 향후 1~7일 예보를 Open-Meteo와 기상청 단기·중기예보로 비교합니다."""
+    return compare_weekly_forecast_service(city, days)
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run(transport="streamable-http")

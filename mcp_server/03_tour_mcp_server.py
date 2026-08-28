@@ -1,5 +1,6 @@
 """특정 지역의 관광지 정보를 조회하는 stdio MCP Server입니다."""
 
+import os
 from typing import Literal
 
 from mcp.server.fastmcp import FastMCP
@@ -8,8 +9,9 @@ from mcp.server.fastmcp import FastMCP
 mcp = FastMCP(
     "tour",
     instructions="도시에 관광지를 검색하고 관광지별 정보를 제공합니다.",
+    host=os.getenv("TOUR_MCP_HOST", "0.0.0.0"),
+    port=int(os.getenv("TOUR_MCP_PORT", "8033")),
 )
-
 TOURISTS = [
     {
         "tourist_id": "tourist-busan-001",
@@ -47,4 +49,5 @@ def search_tourists(
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    # mcp.run(transport="stdio")
+    mcp.run(transport="streamable-http") # 외부에서 mcp server를 실행하고 싶다면 이 옵션을 사용하세요.

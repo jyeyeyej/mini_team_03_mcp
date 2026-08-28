@@ -2,8 +2,12 @@
 
 from typing import Literal
 
+from mcp import os
 from mcp.server.fastmcp import FastMCP
 
+
+MCP_HOST = os.getenv("HOTEL_HOST", "http://192.168.1.26:8033/mcp")
+MCP_PORT = int(os.getenv("HOTEL_PORT", "8033"))
 
 mcp = FastMCP(
     "hotel",
